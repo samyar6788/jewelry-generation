@@ -1,16 +1,30 @@
-# Arcade AI Jewelry Generation - Quick Setup Guide
+# Arcade AI Jewelry Generation - Improved Stable Diffusion for Modern Jewelry
+
+## Project Overview
+
+This project addresses two critical pain points in jewelry image generation:
+1. **Prompt adherence** - ensuring technical terms like "channel-set diamond" and "threader earrings" are properly interpreted
+2. **Modern aesthetics** - producing clean, contemporary jewelry imagery aligned with brands like Mejuri and Catbird
+
+Through systematic optimization of Stable Diffusion 1.5, including LoRA fine-tuning, prompt engineering, and parameter tuning, we achieved significant improvements in both prompt fidelity and aesthetic quality.
+
+## Key Results
+
+- **Best configuration**: Euler Ancestral sampler (62.5% win rate), medium Compel weighting (60%), CFG=9 (75%), 20 steps (66.7%)
+- **LoRA training**: Successfully fine-tuned adapters for threader earrings and channel-set jewelry
+- **Evaluation approach**: Human evaluation proved more reliable than CLIP similarity or LAION aesthetic scores for jewelry quality assessment
 
 ## Environment Setup
 
 ### Prerequisites
 - Python ≥3.10
-- CUDA-compatible GPU (recommended)
-- 16GB+ RAM
+- CUDA-compatible GPU (recommended) or CPU for quick testing
+- 8GB+ RAM (16GB+ recommended for GPU training)
 
 ### Installation
 ```bash
-# Clone or download the project
-cd arcade-jewelry-generation
+# Navigate to project directory
+cd deliverables
 
 # Create virtual environment
 python -m venv venv
@@ -19,97 +33,41 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Optional: Install specific versions for stability
+# Optional: Install CUDA-optimized PyTorch for faster generation
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-pip install diffusers==0.30.3 transformers==4.45.0 accelerate==0.25.0
 ```
 
-### Required Libraries
-```txt
-torch>=2.0.0
-diffusers>=0.30.0
-transformers>=4.45.0
-accelerate>=0.25.0
-compel>=2.0.0
-safetensors>=0.4.0
-matplotlib>=3.5.0
-seaborn>=0.11.0
-pandas>=1.5.0
-numpy>=1.21.0
-Pillow>=9.0.0
-```
+### Key Dependencies
+The project uses the following core libraries:
+- **Core ML**: PyTorch 2.0+, torchvision, transformers 4.45+
+- **Diffusion**: diffusers 0.30+, accelerate 0.25+, safetensors 0.4+
+- **Prompt Enhancement**: compel 2.0+ (for weighted prompt parsing)
+- **LoRA Training**: peft 0.17+, datasets 2.0+, huggingface-hub 0.25+
+- **Evaluation**: sentence-transformers 2.2+, scikit-learn 1.1+
+- **Visualization**: matplotlib 3.5+, seaborn 0.11+, pandas 1.5+
+- **Development**: jupyter 1.0+, ipywidgets 8.0+, tqdm 4.64+
 
-## Quick Generation
+## Quick Start
 
-### Generate Sample Images (CPU-friendly, <10 min)
-```python
+### Generate Sample Images (CPU-friendly, ~10 minutes)
+```bash
 # Run the optimized configuration notebook
-jupyter notebook deliverables/notebook_or_scripts/quick_jewelry_generation.ipynb
+jupyter notebook notebook_or_scripts/quick_jewelry_generation.ipynb
 
-# Or run directly:
-python deliverables/notebook_or_scripts/generate_jewelry_sample.py
+# Or run directly with Python:
+python notebook_or_scripts/quick_jewelry_generation.py
 ```
 
-### Reproduce Before/After Results
-```python
-# Generate all 8 required prompts with baseline vs optimized
-python deliverables/notebook_or_scripts/generate_before_after.py
+### Reproduce Before/After Comparisons
+```bash
+# Generate comparison images using baseline vs optimized configurations
+python notebook_or_scripts/generate_before_after.py
 
-# Output: deliverables/before_after/prompt01_baseline.png, prompt01_yours.png, etc.
+# This will create comparison images in the before_after/ directory
+# showing the improvements from the optimization techniques
 ```
 
-## Key Configuration
-
-### Optimal Settings (from human evaluation)
-- **Model**: SD 1.5 (runwayml/stable-diffusion-v1-5)
-- **Sampler**: Euler Ancestral
-- **Strategy**: medium_compel (Compel prompt weighting)
-- **CFG Scale**: 9.0
-- **Steps**: 20
-- **Resolution**: 512x512
-
-### LoRA Models
-Fine-tuned LoRA adapters available for:
-- **Threader Earrings**: `models/threader_lora_v3.safetensors`
-- **Channel-Set Jewelry**: `models/channelset_lora_v2.safetensors`
-
-Usage:
-```python
-from diffusers import StableDiffusionPipeline
-pipeline = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
-pipeline.load_lora_weights("models/threader_lora_v3.safetensors")
-```
-
-## File Structure
-```
-deliverables/
-├── before_after/           # 24 comparison images (8 prompts × baseline + optimized)
-├── notebook_or_scripts/    # Reproducible code and visualizations
-├── report.md              # Technical approach and results (800 words)
-└── README.md              # This file
-
-notebook_or_scripts/
-├── quick_jewelry_generation.ipynb    # <10min CPU demo
-├── generate_before_after.py          # Reproduce all comparisons
-├── lora_training_analysis.ipynb      # Training visualizations
-└── comprehensive_evaluation.ipynb    # Full experiment results
-```
-
-## Troubleshooting
-
-### Common Issues
-1. **CUDA out of memory**: Reduce batch size or use CPU: `device="cpu"`
-2. **Slow generation**: Ensure CUDA is available: `torch.cuda.is_available()`
-3. **Import errors**: Ensure all dependencies installed: `pip install -r requirements.txt`
-
-### Performance Tips
-- Use `torch.float16` for faster generation
-- Enable memory efficient attention: `pipeline.enable_memory_efficient_attention()`
-- Set deterministic seeds for reproducible results
-
-## Validation
-
-### Test Installation
+### Test Your Installation
 ```python
 import torch
 from diffusers import StableDiffusionPipeline
@@ -117,15 +75,37 @@ from diffusers import StableDiffusionPipeline
 print(f"PyTorch: {torch.__version__}")
 print(f"CUDA available: {torch.cuda.is_available()}")
 
-# Quick test generation (~2 minutes)
+# Quick test generation (~2 minutes on CPU)
 pipeline = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
-    torch_dtype=torch.float16
+    torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
 )
+pipeline.to("cuda" if torch.cuda.is_available() else "cpu")
+
 image = pipeline("delicate gold ring", num_inference_steps=10).images[0]
 image.save("test_output.png")
 print("✅ Setup successful!")
 ```
 
-## Support
-For questions or issues, refer to the comprehensive notebooks in `notebook_or_scripts/` which include detailed explanations and troubleshooting steps.
+
+
+## Project Structure
+```
+deliverables/
+├── before_after/                      # Generated comparison images (baseline vs optimized)
+├── images/                           # Report figures and visualizations
+│   ├── human_eval_interface.png     # Human evaluation interface
+│   ├── prompt1_evolution_grid.png   # LoRA training evolution grid
+│   └── training_loss.png            # Training loss curves
+├── notebook_or_scripts/             # Reproducible code and analysis
+│   ├── quick_jewelry_generation.ipynb   # Interactive demo notebook (~10 min)
+│   ├── quick_jewelry_generation.py      # Standalone generation script
+│   ├── generate_before_after.py         # Comparison generation script
+│   └── prompt1_evolution_grid.png       # Training visualization
+├── report.md                        # Technical approach and findings
+├── requirements.txt                 # Python dependencies
+└── README.md                        # This file
+```
+
+
+
