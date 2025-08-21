@@ -34,7 +34,7 @@ My objective was to improve Stable Diffusion 1.5 so outputs are both prompt-fait
 - **Compel Integration**: Implemented weighted prompt parsing to emphasize technical jewelry terms like "channel-set diamond" and "threader earrings".
 
 **Modern Aesthetic (Pain-point #2):**
-- **Parameter Optimization**: CFG scale of 9.0 with 20 steps balanced quality and modern clean aesthetics.
+- **Parameter Optimization**: CFG scale of 7.5 with 30 steps balanced quality and modern clean aesthetics.
 - **Curated Training Data**: LoRA training used exclusively modern, minimalist jewelry images matching brands like Mejuri and Catbird.
 
 ## Evidence
@@ -44,7 +44,7 @@ My objective was to improve Stable Diffusion 1.5 so outputs are both prompt-fait
 - CLIP similarity and LAION aesthetic scores were inconsistent with human judgment.
 - GPT-5–generated labels, however, showed __clearer improvements__ across iterations, better reflecting prompt adherence and aesthetic quality.
 - This suggests that automated metrics are useful as references, but domain-specific labeling (with GPT-5 or curated schema) tracks progress more reliably.
-- Based on comparative human evaluations, the best-performing setup was Euler Ancestral (62.5% win rate), medium compel (60%), CFG = 9 (75%), and 20 steps (66.7%)
+- Based on comparative human evaluations, the best-performing setup was Euler Ancestral (62.5% win rate), medium compel (60%), CFG = 7.5 (75%), and 30 steps (66.7%)
 
 ### Training observations:
 - Most LoRA runs plateaued quickly given the small datasets and loss curves appeared mostly flat.
