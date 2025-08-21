@@ -43,7 +43,7 @@ My objective was to improve Stable Diffusion 1.5 so outputs are both prompt-fait
 
 - CLIP similarity and LAION aesthetic scores were inconsistent with human judgment.
 - GPT-5–generated labels, however, showed __clearer improvements__ across iterations, better reflecting prompt adherence and aesthetic quality.
-- This suggests that automated metrics are useful as references, but domain-specific labeling (with GPT-5 or curated schema) tracks progress more reliably. [ADD HERE]
+- This suggests that automated metrics are useful as references, but domain-specific labeling (with GPT-5 or curated schema) tracks progress more reliably.
 - Based on comparative human evaluations, the best-performing setup was Euler Ancestral (62.5% win rate), medium compel (60%), CFG = 9 (75%), and 20 steps (66.7%)
 
 ### Training observations:
