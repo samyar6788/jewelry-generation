@@ -93,10 +93,6 @@ test_output.png
 # Preview scripts (functionality available in notebooks)
 preview_prompts.py
 
-# Main generation scripts (development versions)
-generate_before_after.py
-generate_before_after.ipynb
-
 # Weights & Biases
 wandb/
 

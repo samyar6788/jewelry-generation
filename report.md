@@ -16,7 +16,7 @@ My objective was to improve Stable Diffusion 1.5 so outputs are both prompt-fait
 
 - __Prompt engineering__: tested compel, numeric weights, and structured prompts. Tried negative prompts ranging from generic (“low quality, clutter”) to jewelry-specific (“vintage, overly ornate”).
 - __Sampler comparisons__: evaluated Euler Ancestral, DDIM, DPMSolver++ variants across different step counts (20-50) and CFG scales (5-9).
-- __LoRA fine-tuning__: trained adapters on small curated sets (25-30 images per category) for specific jewelry categories (threader earrings, channel-set bands, and huggie hoops). Iteratively improved training using increased learning rate to 1e-4, used constant LR scheduler with warmup, expanded network rank to 32.
+- __LoRA fine-tuning__: trained adapters on small curated sets (25-30 images per category) for specific jewelry categories (threader earrings and channel-set bands). Iteratively improved training using increased learning rate to 1e-4, used constant LR scheduler with warmup, expanded network rank to 32.
 - __Rare token__: introduced custom tokens (sks for channel-set, phol for threader) in captions to reinforce grounding and improve prompt adherence.
 - __Caption refinement__: Replaced generic captions with detailed, consistent phrases (e.g., "threader earrings, white background, studio lighting").
 - __Evaluation metrics__ ran CLIP similarity, jewelry term adherence, LAION aesthetic scoring, GPT-5 label generation, and human evaluation. CLIP and LAION aesthetic scoring proved insufficient (38.4% and 51.4% prediction accuracy respectively) so I relied on comparative analysis of the human evaluator to identify optimal production configuration.
