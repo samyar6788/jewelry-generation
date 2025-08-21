@@ -74,6 +74,7 @@ logs/
 *.bin
 models/
 checkpoints/
+lora_adapters/
 
 # Generated images (optional - uncomment if you don't want to track generated images)
 # *.png

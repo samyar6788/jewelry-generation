@@ -23,6 +23,53 @@ REQUIRED_PROMPTS = [
     "bypass ring with stones on it, with refined simplicity and intentionally crafted for everyday wear"
 ]
 
+# LoRA adapter paths and configuration
+LORA_ADAPTERS = {
+    "channel_set": "lora_adapters/channel-set/checkpoint-100/pytorch_lora_weights.safetensors",
+    "threader": "lora_adapters/threader/checkpoint-100/pytorch_lora_weights.safetensors", 
+    "huggie": "lora_adapters/huggie/checkpoint-100/pytorch_lora_weights.safetensors"
+}
+
+# Special tokens for enhanced grounding
+SPECIAL_TOKENS = {
+    "channel_set": "sks",
+    "threader": "phol"
+}
+
+def detect_jewelry_category(prompt):
+    """Detect jewelry category for LoRA selection"""
+    prompt_lower = prompt.lower()
+    
+    if "channel-set" in prompt_lower:
+        return "channel_set"
+    elif "threader" in prompt_lower:
+        return "threader" 
+    elif "huggie" in prompt_lower:
+        return "huggie"
+    else:
+        return None
+
+def load_lora_adapter(pipeline, category):
+    """Load appropriate LoRA adapter for the jewelry category"""
+    if category and category in LORA_ADAPTERS:
+        lora_path = LORA_ADAPTERS[category]
+        if os.path.exists(lora_path):
+            print(f"🔧 Loading {category} LoRA adapter...")
+            pipeline.load_lora_weights(lora_path)
+            return True
+        else:
+            print(f"⚠️  LoRA adapter not found: {lora_path}")
+            return False
+    return False
+
+def unload_lora_adapter(pipeline):
+    """Unload current LoRA adapter"""
+    try:
+        pipeline.unload_lora_weights()
+    except:
+        # No LoRA to unload or not supported
+        pass
+
 def setup_pipeline(device="cuda"):
     """Setup SD 1.5 pipeline with optimal configuration"""
     print("🔧 Loading SD 1.5 pipeline...")
@@ -59,8 +106,8 @@ def setup_pipeline(device="cuda"):
     print(f"✅ Pipeline ready on {device}")
     return pipeline, compel
 
-def apply_jewelry_enhancement(prompt):
-    """Apply the optimal medium_compel strategy"""
+def apply_jewelry_enhancement(prompt, category=None):
+    """Apply the optimal medium_compel strategy with special tokens"""
     
     # Jewelry-specific terms to emphasize (from research)
     jewelry_terms = [
@@ -72,6 +119,14 @@ def apply_jewelry_enhancement(prompt):
     ]
     
     enhanced_prompt = prompt
+    
+    # Add special tokens for trained categories
+    if category and category in SPECIAL_TOKENS:
+        special_token = SPECIAL_TOKENS[category]
+        if category == "channel_set" and "channel-set" in enhanced_prompt:
+            enhanced_prompt = enhanced_prompt.replace("channel-set", f"{special_token} channel-set")
+        elif category == "threader" and "threader" in enhanced_prompt:
+            enhanced_prompt = enhanced_prompt.replace("threader", f"{special_token} threader")
     
     # Apply 1.2x emphasis to jewelry terms (optimal weight from evaluation)
     for term in jewelry_terms:
@@ -103,10 +158,18 @@ def generate_baseline_image(pipeline, prompt, seed=42):
     return image
 
 def generate_optimized_image(pipeline, compel, prompt, seed=42):
-    """Generate optimized image with research-backed settings"""
+    """Generate optimized image with research-backed settings and LoRA"""
     
-    # Apply prompt enhancement
-    enhanced_prompt = apply_jewelry_enhancement(prompt)
+    # Detect jewelry category for LoRA selection
+    category = detect_jewelry_category(prompt)
+    
+    # Load appropriate LoRA adapter
+    lora_loaded = False
+    if category:
+        lora_loaded = load_lora_adapter(pipeline, category)
+    
+    # Apply prompt enhancement with special tokens
+    enhanced_prompt = apply_jewelry_enhancement(prompt, category)
     
     # Use Compel for weighted embeddings
     conditioning = compel(enhanced_prompt)
@@ -122,7 +185,11 @@ def generate_optimized_image(pipeline, compel, prompt, seed=42):
         width=512
     ).images[0]
     
-    return image, enhanced_prompt
+    # Unload LoRA adapter for next generation
+    if lora_loaded:
+        unload_lora_adapter(pipeline)
+    
+    return image, enhanced_prompt, category
 
 def generate_all_comparisons():
     """Generate all 24 required images"""
@@ -158,7 +225,7 @@ def generate_all_comparisons():
         # Generate optimized
         print("🔹 Generating optimized...")
         start_time = time.time()
-        optimized_image, enhanced_prompt = generate_optimized_image(
+        optimized_image, enhanced_prompt, category = generate_optimized_image(
             pipeline, compel, prompt, seed=42
         )
         optimized_time = time.time() - start_time
@@ -171,6 +238,8 @@ def generate_all_comparisons():
             'prompt_num': i,
             'original_prompt': prompt,
             'enhanced_prompt': enhanced_prompt,
+            'category': category,
+            'lora_used': category is not None,
             'baseline_time': baseline_time,
             'optimized_time': optimized_time,
             'baseline_path': baseline_path,
@@ -203,11 +272,26 @@ def generate_all_comparisons():
         print(f"  {baseline_file} ✅")
         print(f"  {optimized_file} ✅")
     
+    # LoRA usage summary
+    lora_usage = {}
+    for result in results:
+        if result['lora_used']:
+            category = result['category']
+            lora_usage[category] = lora_usage.get(category, 0) + 1
+    
     print(f"\n🎨 Key Improvements Applied:")
     print(f"  • Compel prompt weighting on jewelry terms")
+    print(f"  • Special tokens: 'sks' for channel-set, 'phol' for threader")
     print(f"  • Optimal CFG scale: 9.0 (vs 7.5 baseline)")
     print(f"  • Euler Ancestral sampler for quality")
     print(f"  • Consistent seed (42) for reproducibility")
+    
+    if lora_usage:
+        print(f"\n🧠 LoRA Adapters Used:")
+        for category, count in lora_usage.items():
+            print(f"  • {category}: {count} prompt(s)")
+    else:
+        print(f"\n⚠️  No LoRA adapters found - using base model only")
     
     return results
 
@@ -220,8 +304,11 @@ def show_enhancement_examples():
     example_prompts = REQUIRED_PROMPTS[:3]
     
     for i, prompt in enumerate(example_prompts, 1):
-        enhanced = apply_jewelry_enhancement(prompt)
-        print(f"\nPrompt {i}:")
+        category = detect_jewelry_category(prompt)
+        enhanced = apply_jewelry_enhancement(prompt, category)
+        lora_info = f" → LoRA: {category}" if category else " → No LoRA"
+        
+        print(f"\nPrompt {i}{lora_info}:")
         print(f"Original : {prompt}")
         print(f"Enhanced : {enhanced}")
     
