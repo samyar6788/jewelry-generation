@@ -25,9 +25,9 @@ REQUIRED_PROMPTS = [
 
 # LoRA adapter paths and configuration
 LORA_ADAPTERS = {
-    "channel_set": "lora_adapters/channel-set/checkpoint-100/pytorch_lora_weights.safetensors",
-    "threader": "lora_adapters/threader/checkpoint-100/pytorch_lora_weights.safetensors", 
-    "huggie": "lora_adapters/huggie/checkpoint-100/pytorch_lora_weights.safetensors"
+    "channel_set": "lora_adapters/channel-set/checkpoint/pytorch_lora_weights.safetensors",
+    "threader": "lora_adapters/threader/checkpoint/pytorch_lora_weights.safetensors", 
+    "huggie": "lora_adapters/huggie/checkpoint/pytorch_lora_weights.safetensors"
 }
 
 # Special tokens for enhanced grounding
