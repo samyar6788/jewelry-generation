@@ -1,19 +1,5 @@
 # Arcade AI Jewelry Generation - Improved Stable Diffusion for Modern Jewelry
 
-## Project Overview
-
-This project addresses two critical pain points in jewelry image generation:
-1. **Prompt adherence** - ensuring technical terms like "channel-set diamond" and "threader earrings" are properly interpreted
-2. **Modern aesthetics** - producing clean, contemporary jewelry imagery aligned with brands like Mejuri and Catbird
-
-Through systematic optimization of Stable Diffusion 1.5, including LoRA fine-tuning, prompt engineering, and parameter tuning, we achieved significant improvements in both prompt fidelity and aesthetic quality.
-
-## Key Results
-
-- **Best configuration**: Euler Ancestral sampler (62.5% win rate), medium Compel weighting (60%), CFG=9 (75%), 20 steps (66.7%)
-- **LoRA training**: Successfully fine-tuned adapters for threader earrings and channel-set jewelry
-- **Evaluation approach**: Human evaluation proved more reliable than CLIP similarity or LAION aesthetic scores for jewelry quality assessment
-
 ## Environment Setup
 
 ### Prerequisites
@@ -56,15 +42,6 @@ jupyter notebook notebook_or_scripts/quick_jewelry_generation.ipynb
 
 # Or run directly with Python:
 python notebook_or_scripts/quick_jewelry_generation.py
-```
-
-### Reproduce Before/After Comparisons
-```bash
-# Generate comparison images using baseline vs optimized configurations
-python notebook_or_scripts/generate_before_after.py
-
-# This will create comparison images in the before_after/ directory
-# showing the improvements from the optimization techniques
 ```
 
 ### Test Your Installation
