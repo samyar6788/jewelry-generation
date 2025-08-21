@@ -36,7 +36,7 @@ def detect_jewelry_category(prompt):
         return None
 
 def apply_jewelry_enhancement(prompt, category=None):
-    """Apply custom Compel strategy with specific groupings per prompt"""
+    """Apply custom attention weighting using native diffusers syntax"""
     
     enhanced_prompt = prompt
     
@@ -48,68 +48,68 @@ def apply_jewelry_enhancement(prompt, category=None):
         elif category == "threader" and "threader" in enhanced_prompt:
             enhanced_prompt = enhanced_prompt.replace("threader", f"{special_token} threader")
     
-    # Apply prompt-specific Compel groupings
+    # Apply prompt-specific attention weighting using diffusers syntax
     if "channel-set diamond eternity band" in prompt:
         # Prompt 1: channel-set
-        enhanced_prompt = enhanced_prompt.replace("sks channel-set", "(sks channel-set)1.2")
-        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond)1.2")
-        enhanced_prompt = enhanced_prompt.replace("hammered", "(hammered)1.2")
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("product-only", "(product-only)1.2")
-        enhanced_prompt = enhanced_prompt.replace("white background", "(white background)1.2")
+        enhanced_prompt = enhanced_prompt.replace("sks channel-set", "(sks channel-set:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("hammered", "(hammered:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("product-only", "(product-only:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("white background", "(white background:1.2)")
         
     elif "14k rose-gold threader earrings" in prompt:
         # Prompt 2: threader
-        enhanced_prompt = enhanced_prompt.replace("rose-gold", "(rose-gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("phol threader", "(phol threader)1.2")
-        enhanced_prompt = enhanced_prompt.replace("bezel-set", "(bezel-set)1.2")
-        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond)1.2")
-        enhanced_prompt = enhanced_prompt.replace("lifestyle", "(lifestyle)1.2")
-        enhanced_prompt = enhanced_prompt.replace("macro", "(macro)1.2")
+        enhanced_prompt = enhanced_prompt.replace("rose-gold", "(rose-gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("phol threader", "(phol threader:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("bezel-set", "(bezel-set:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("lifestyle", "(lifestyle:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("macro", "(macro:1.2)")
         
     elif "organic cluster ring with mixed-cut sapphires" in prompt:
         # Prompt 3: organic cluster
-        enhanced_prompt = enhanced_prompt.replace("organic cluster", "(organic cluster)1.2")
-        enhanced_prompt = enhanced_prompt.replace("sapphires", "(sapphires)1.2")
-        enhanced_prompt = enhanced_prompt.replace("diamonds", "(diamonds)1.2")
-        enhanced_prompt = enhanced_prompt.replace("brushed", "(brushed)1.2")
-        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum)1.2")
-        enhanced_prompt = enhanced_prompt.replace("modern", "(modern)1.2")
+        enhanced_prompt = enhanced_prompt.replace("organic cluster", "(organic cluster:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("sapphires", "(sapphires:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("diamonds", "(diamonds:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("brushed", "(brushed:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("modern", "(modern:1.2)")
         
     elif "solid gold cuff bracelet with blue sapphire" in prompt:
         # Prompt 4: cuff bracelet
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("cuff bracelet", "(cuff bracelet)1.2")
-        enhanced_prompt = enhanced_prompt.replace("blue sapphire", "(blue sapphire)1.2")
-        enhanced_prompt = enhanced_prompt.replace("refined", "(refined)1.2")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("cuff bracelet", "(cuff bracelet:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("blue sapphire", "(blue sapphire:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("refined", "(refined:1.2)")
         
     elif "modern signet ring, oval face, engraved gothic" in prompt:
         # Prompt 5: signet ring
-        enhanced_prompt = enhanced_prompt.replace("modern", "(modern)1.2")
-        enhanced_prompt = enhanced_prompt.replace("signet", "(signet)1.2")
-        enhanced_prompt = enhanced_prompt.replace("engraved gothic initial 'M'", "(engraved gothic initial 'M')1.2")
-        enhanced_prompt = enhanced_prompt.replace("sterling", "(sterling)1.2")
-        enhanced_prompt = enhanced_prompt.replace("silver", "(silver)1.2")
+        enhanced_prompt = enhanced_prompt.replace("modern", "(modern:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("signet", "(signet:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("engraved gothic initial 'M'", "(engraved gothic initial 'M':1.2)")
+        enhanced_prompt = enhanced_prompt.replace("sterling", "(sterling:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("silver", "(silver:1.2)")
         
     elif "delicate gold huggie hoops" in prompt:
         # Prompt 6: huggie hoops
-        enhanced_prompt = enhanced_prompt.replace("delicate", "(delicate)1.2")
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("huggie hoops", "(huggie hoops)1.2")
-        enhanced_prompt = enhanced_prompt.replace("contemporary", "(contemporary)1.2")
+        enhanced_prompt = enhanced_prompt.replace("delicate", "(delicate:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("huggie hoops", "(huggie hoops:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("contemporary", "(contemporary:1.2)")
         
     elif "stack of three slim rings" in prompt:
         # Prompt 7: ring stack
-        enhanced_prompt = enhanced_prompt.replace("stack of three", "(stack of three)1.2")
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum)1.2")
-        enhanced_prompt = enhanced_prompt.replace("pavé", "(pavé)1.2")
-        enhanced_prompt = enhanced_prompt.replace("editorial", "(editorial)1.2")
+        enhanced_prompt = enhanced_prompt.replace("stack of three", "(stack of three:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("pavé", "(pavé:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("editorial", "(editorial:1.2)")
         
     elif "bypass ring with stones" in prompt:
         # Prompt 8: bypass ring
-        enhanced_prompt = enhanced_prompt.replace("bypass ring", "(bypass ring)1.2")
-        enhanced_prompt = enhanced_prompt.replace("refined", "(refined)1.2")
+        enhanced_prompt = enhanced_prompt.replace("bypass ring", "(bypass ring:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("refined", "(refined:1.2)")
     
     return enhanced_prompt
 
@@ -180,6 +180,7 @@ if __name__ == "__main__":
     print("🔍 PROMPT OPTIMIZATION PREVIEW")
     print("=" * 50)
     print("Showing all optimized prompts without image generation")
+    print("Will generate 16 total images (8 baseline + 8 optimized)")
     print("=" * 50)
     
     # Run the preview function

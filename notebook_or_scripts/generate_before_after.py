@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
 Generate Before/After Images for Arcade AI Challenge
-Creates all 24 required images (8 prompts × baseline + optimized)
+Creates all 16 required images (8 prompts × baseline + optimized)
 """
 
 import torch
 import os
 from diffusers import StableDiffusionPipeline, EulerAncestralDiscreteScheduler
-from compel import Compel
 import time
 from datetime import datetime
 
@@ -97,17 +96,11 @@ def setup_pipeline(device="cuda"):
     else:
         pipeline.enable_attention_slicing()
     
-    # Setup Compel for prompt enhancement
-    compel = Compel(
-        tokenizer=pipeline.tokenizer,
-        text_encoder=pipeline.text_encoder
-    )
-    
     print(f"✅ Pipeline ready on {device}")
-    return pipeline, compel
+    return pipeline
 
 def apply_jewelry_enhancement(prompt, category=None):
-    """Apply custom Compel strategy with specific groupings per prompt"""
+    """Apply custom attention weighting using native diffusers syntax"""
     
     enhanced_prompt = prompt
     
@@ -119,68 +112,68 @@ def apply_jewelry_enhancement(prompt, category=None):
         elif category == "threader" and "threader" in enhanced_prompt:
             enhanced_prompt = enhanced_prompt.replace("threader", f"{special_token} threader")
     
-    # Apply prompt-specific Compel groupings
+    # Apply prompt-specific attention weighting using diffusers syntax
     if "channel-set diamond eternity band" in prompt:
         # Prompt 1: channel-set
-        enhanced_prompt = enhanced_prompt.replace("sks channel-set", "(sks channel-set)1.2")
-        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond)1.2")
-        enhanced_prompt = enhanced_prompt.replace("hammered", "(hammered)1.2")
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("product-only", "(product-only)1.2")
-        enhanced_prompt = enhanced_prompt.replace("white background", "(white background)1.2")
+        enhanced_prompt = enhanced_prompt.replace("sks channel-set", "(sks channel-set:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("hammered", "(hammered:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("product-only", "(product-only:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("white background", "(white background:1.2)")
         
     elif "14k rose-gold threader earrings" in prompt:
         # Prompt 2: threader
-        enhanced_prompt = enhanced_prompt.replace("rose-gold", "(rose-gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("phol threader", "(phol threader)1.2")
-        enhanced_prompt = enhanced_prompt.replace("bezel-set", "(bezel-set)1.2")
-        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond)1.2")
-        enhanced_prompt = enhanced_prompt.replace("lifestyle", "(lifestyle)1.2")
-        enhanced_prompt = enhanced_prompt.replace("macro", "(macro)1.2")
+        enhanced_prompt = enhanced_prompt.replace("rose-gold", "(rose-gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("phol threader", "(phol threader:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("bezel-set", "(bezel-set:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("diamond", "(diamond:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("lifestyle", "(lifestyle:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("macro", "(macro:1.2)")
         
     elif "organic cluster ring with mixed-cut sapphires" in prompt:
         # Prompt 3: organic cluster
-        enhanced_prompt = enhanced_prompt.replace("organic cluster", "(organic cluster)1.2")
-        enhanced_prompt = enhanced_prompt.replace("sapphires", "(sapphires)1.2")
-        enhanced_prompt = enhanced_prompt.replace("diamonds", "(diamonds)1.2")
-        enhanced_prompt = enhanced_prompt.replace("brushed", "(brushed)1.2")
-        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum)1.2")
-        enhanced_prompt = enhanced_prompt.replace("modern", "(modern)1.2")
+        enhanced_prompt = enhanced_prompt.replace("organic cluster", "(organic cluster:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("sapphires", "(sapphires:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("diamonds", "(diamonds:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("brushed", "(brushed:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("modern", "(modern:1.2)")
         
     elif "solid gold cuff bracelet with blue sapphire" in prompt:
         # Prompt 4: cuff bracelet
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("cuff bracelet", "(cuff bracelet)1.2")
-        enhanced_prompt = enhanced_prompt.replace("blue sapphire", "(blue sapphire)1.2")
-        enhanced_prompt = enhanced_prompt.replace("refined", "(refined)1.2")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("cuff bracelet", "(cuff bracelet:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("blue sapphire", "(blue sapphire:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("refined", "(refined:1.2)")
         
     elif "modern signet ring, oval face, engraved gothic" in prompt:
         # Prompt 5: signet ring
-        enhanced_prompt = enhanced_prompt.replace("modern", "(modern)1.2")
-        enhanced_prompt = enhanced_prompt.replace("signet", "(signet)1.2")
-        enhanced_prompt = enhanced_prompt.replace("engraved gothic initial 'M'", "(engraved gothic initial 'M')1.2")
-        enhanced_prompt = enhanced_prompt.replace("sterling", "(sterling)1.2")
-        enhanced_prompt = enhanced_prompt.replace("silver", "(silver)1.2")
+        enhanced_prompt = enhanced_prompt.replace("modern", "(modern:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("signet", "(signet:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("engraved gothic initial 'M'", "(engraved gothic initial 'M':1.2)")
+        enhanced_prompt = enhanced_prompt.replace("sterling", "(sterling:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("silver", "(silver:1.2)")
         
     elif "delicate gold huggie hoops" in prompt:
         # Prompt 6: huggie hoops
-        enhanced_prompt = enhanced_prompt.replace("delicate", "(delicate)1.2")
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("huggie hoops", "(huggie hoops)1.2")
-        enhanced_prompt = enhanced_prompt.replace("contemporary", "(contemporary)1.2")
+        enhanced_prompt = enhanced_prompt.replace("delicate", "(delicate:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("huggie hoops", "(huggie hoops:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("contemporary", "(contemporary:1.2)")
         
     elif "stack of three slim rings" in prompt:
         # Prompt 7: ring stack
-        enhanced_prompt = enhanced_prompt.replace("stack of three", "(stack of three)1.2")
-        enhanced_prompt = enhanced_prompt.replace("gold", "(gold)1.2")
-        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum)1.2")
-        enhanced_prompt = enhanced_prompt.replace("pavé", "(pavé)1.2")
-        enhanced_prompt = enhanced_prompt.replace("editorial", "(editorial)1.2")
+        enhanced_prompt = enhanced_prompt.replace("stack of three", "(stack of three:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("gold", "(gold:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("platinum", "(platinum:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("pavé", "(pavé:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("editorial", "(editorial:1.2)")
         
     elif "bypass ring with stones" in prompt:
         # Prompt 8: bypass ring
-        enhanced_prompt = enhanced_prompt.replace("bypass ring", "(bypass ring)1.2")
-        enhanced_prompt = enhanced_prompt.replace("refined", "(refined)1.2")
+        enhanced_prompt = enhanced_prompt.replace("bypass ring", "(bypass ring:1.2)")
+        enhanced_prompt = enhanced_prompt.replace("refined", "(refined:1.2)")
     
     return enhanced_prompt
 
@@ -200,7 +193,7 @@ def generate_baseline_image(pipeline, prompt, seed=42):
     
     return image
 
-def generate_optimized_image(pipeline, compel, prompt, seed=42):
+def generate_optimized_image(pipeline, prompt, seed=42):
     """Generate optimized image with research-backed settings and LoRA"""
     
     # Detect jewelry category for LoRA selection
@@ -211,16 +204,13 @@ def generate_optimized_image(pipeline, compel, prompt, seed=42):
     if category:
         lora_loaded = load_lora_adapter(pipeline, category)
     
-    # Apply prompt enhancement with special tokens
+    # Apply prompt enhancement with special tokens and attention weighting
     enhanced_prompt = apply_jewelry_enhancement(prompt, category)
-    
-    # Use Compel for weighted embeddings
-    conditioning = compel(enhanced_prompt)
     
     generator = torch.Generator(device=pipeline.device).manual_seed(seed)
     
     image = pipeline(
-        prompt_embeds=conditioning,
+        prompt=enhanced_prompt,      # Use enhanced prompt with native diffusers syntax
         num_inference_steps=20,      # Optimal from research
         guidance_scale=9.0,          # Optimal CFG from human evaluation
         generator=generator,
@@ -235,14 +225,14 @@ def generate_optimized_image(pipeline, compel, prompt, seed=42):
     return image, enhanced_prompt, category
 
 def generate_all_comparisons():
-    """Generate all 24 required images"""
+    """Generate all 16 required images"""
     
     # Setup
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"🚀 Starting generation on {device}")
     print(f"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     
-    pipeline, compel = setup_pipeline(device)
+    pipeline = setup_pipeline(device)
     
     # Create output directory
     output_dir = "deliverables/before_after"
@@ -269,7 +259,7 @@ def generate_all_comparisons():
         print("🔹 Generating optimized...")
         start_time = time.time()
         optimized_image, enhanced_prompt, category = generate_optimized_image(
-            pipeline, compel, prompt, seed=42
+            pipeline, prompt, seed=42
         )
         optimized_time = time.time() - start_time
         
@@ -323,7 +313,7 @@ def generate_all_comparisons():
             lora_usage[category] = lora_usage.get(category, 0) + 1
     
     print(f"\n🎨 Key Improvements Applied:")
-    print(f"  • Compel prompt weighting on jewelry terms")
+    print(f"  • Native diffusers attention weighting on jewelry terms")
     print(f"  • Special tokens: 'sks' for channel-set, 'phol' for threader")
     print(f"  • Optimal CFG scale: 9.0 (vs 7.5 baseline)")
     print(f"  • Euler Ancestral sampler for quality")
@@ -433,7 +423,7 @@ if __name__ == "__main__":
     
     print("🎨 Arcade AI Challenge - Before/After Generation")
     print("="*60)
-    print("Generating 24 images (8 prompts × baseline + optimized)")
+    print("Generating 16 images (8 prompts × baseline + optimized)")
     print("Using optimal configuration from human evaluation research")
     
     show_enhancement_examples()
