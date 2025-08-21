@@ -91,6 +91,9 @@ tmp/
 temp/
 test_output.png
 
+# Preview scripts (functionality available in notebooks)
+preview_prompts.py
+
 # Weights & Biases
 wandb/
 
